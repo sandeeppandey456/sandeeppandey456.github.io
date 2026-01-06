@@ -7,24 +7,118 @@ tags: [ResNet, Hyper-Connections, mHC, LLM, Sinkhorn-Knopp]
 ---
 
 <link rel="stylesheet" href="/assets/css/custom.css">
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
 
-# From Residual Connections to Manifold-Constrained Hyper-Connections
-### A Simple, Intuitive, and Visual Guide
+<!-- MathJax for LaTeX rendering -->
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-Deep neural networks owe much of their success to a deceptively simple idea: **the residual connection**. Since the introduction of ResNets in 2016, residual connections have become a foundational design element across modern architectures—most notably Transformers and large language models (LLMs).
+<!-- Mermaid for diagrams -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#06b6d4',
+    primaryTextColor: '#f8fafc',
+    primaryBorderColor: '#8b5cf6',
+    lineColor: '#94a3b8',
+    secondaryColor: '#1e293b',
+    tertiaryColor: '#0f172a',
+    background: '#0a0f1a',
+    mainBkg: '#1e293b',
+    nodeBorder: '#8b5cf6',
+    clusterBkg: '#1e293b',
+    fontSize: '16px'
+  },
+  flowchart: {
+    curve: 'basis',
+    padding: 20,
+    nodeSpacing: 50,
+    rankSpacing: 60
+  }
+});
+</script>
 
-Recently, **Hyper-Connections (HC)** proposed a bold extension to residuals by widening the residual stream and increasing connection complexity—unlocking new representational power. However, this power comes with a hidden cost: **training instability at scale**.
+<style>
+.mermaid {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.math-block {
+  background: rgba(17, 24, 39, 0.8);
+  border-left: 3px solid #06b6d4;
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: rgba(17, 24, 39, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+}
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+th {
+  background: rgba(6, 182, 212, 0.2);
+  color: #06b6d4;
+  font-weight: 600;
+}
+blockquote {
+  border-left: 4px solid #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+.highlight-box {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+</style>
+
+## A Simple, Intuitive, and Visual Guide
+
+Deep neural networks owe much of their success to a deceptively simple idea: **the residual connection**. Since the introduction of ResNets in 2016 [1], residual connections have become a foundational design element across modern architectures—most notably Transformers [2] and large language models (LLMs).
+
+Recently, **Hyper-Connections (HC)** [3] proposed a bold extension to residuals by widening the residual stream and increasing connection complexity—unlocking new representational power. However, this power comes with a hidden cost: **training instability at scale**.
+
+**Manifold-Constrained Hyper-Connections (mHC)** [4] solve this problem elegantly using geometric constraints from optimal transport theory.
 
 In this post, we'll build intuition step-by-step for:
-* Why residual connections work
-* What goes wrong in Hyper-Connections
-* How **Manifold-Constrained Hyper-Connections (mHC)** fix the problem
-* Why **Sinkhorn–Knopp projection** is the key ingredient
-* What all of this looks like in **simple toy simulations**
-
-No prior knowledge of optimal transport or advanced matrix theory is required.
+- Why residual connections work
+- What goes wrong in Hyper-Connections  
+- How mHC fix the problem
+- Why **Sinkhorn–Knopp projection** is the key ingredient
 
 ---
 
@@ -32,22 +126,34 @@ No prior knowledge of optimal transport or advanced matrix theory is required.
 
 A standard neural network layer replaces its input:
 
+<div class="math-block">
+
 $$x_{l+1} = F(x_l)$$
+
+</div>
 
 Residual connections modify this to:
 
+<div class="math-block">
+
 $$x_{l+1} = x_l + F(x_l)$$
 
+</div>
+
 <div class="mermaid">
-flowchart LR
-    subgraph Standard["Standard Layer"]
-        A1[x_l] --> F1[F] --> B1[x_l+1]
+graph LR
+    subgraph Standard["🔴 Standard Layer"]
+        A1["x<sub>l</sub>"] --> F1["F(·)"] --> B1["x<sub>l+1</sub>"]
     end
-    subgraph Residual["Residual Connection"]
-        A2[x_l] --> F2[F]
-        A2 --> add((+))
+</div>
+
+<div class="mermaid">
+graph LR
+    subgraph Residual["🟢 Residual Connection"]
+        A2["x<sub>l</sub>"] --> F2["F(·)"]
+        A2 --> add["+"]
         F2 --> add
-        add --> B2[x_l+1]
+        add --> B2["x<sub>l+1</sub>"]
     end
 </div>
 
@@ -58,397 +164,355 @@ You can think of a residual layer as:
 > "Keep what you already know, and apply a small correction."
 
 This simple change enables:
-* Stable training at great depth
-* Protection against vanishing gradients
-* An **identity fallback**: if F(x)=0, the network behaves like the identity function
+- ✅ Stable training at great depth
+- ✅ Protection against vanishing gradients
+- ✅ **Identity fallback**: if $F(x) = 0$, the network behaves like the identity function
 
 Stacking many residual layers yields:
 
-$$x_L = x_l + \sum_{i=l}^{L-1} F(x_i)$$
+<div class="math-block">
 
-The original signal x_l flows **unchanged** through all deeper layers. This property—**identity mapping**—is the secret behind ResNet's stability.
+$$x_L = x_0 + \sum_{i=0}^{L-1} F(x_i)$$
 
-<div class="mermaid">
-flowchart LR
-    x0[x_0] --> add1((+))
-    x0 --> F1[F_1]
-    F1 --> add1
-    add1 --> add2((+))
-    add1 --> F2[F_2]
-    F2 --> add2
-    add2 --> add3((+))
-    add2 --> F3[F_3]
-    F3 --> add3
-    add3 --> xL[x_L]
-    
-    style x0 fill:#06b6d4
-    style xL fill:#8b5cf6
 </div>
+
+The original signal $x_0$ flows **unchanged** through all deeper layers. This property—**identity mapping**—is the secret behind ResNet's stability.
 
 ---
 
 ## 2. Hyper-Connections: Making Residuals Wider
 
-Hyper-Connections (HC) generalize residual connections by introducing **multiple parallel residual streams**.
+Hyper-Connections (HC) [3] generalize residual connections by introducing **multiple parallel residual streams**.
 
-Instead of:
-* One stream x ∈ ℝ^C
-
-We now have:
-* n streams → x ∈ ℝ^(n×C)
+| Standard ResNet | Hyper-Connections |
+|----------------|-------------------|
+| Single stream: $x \in \mathbb{R}^C$ | Multiple streams: $x \in \mathbb{R}^{n \times C}$ |
+| Fixed identity path | Learnable mixing matrices |
+| Limited expressiveness | Rich multi-path interactions |
 
 <div class="mermaid">
-flowchart TB
-    subgraph HC["Hyper-Connections (n=3 streams)"]
+graph TB
+    subgraph HC["Hyper-Connection Layer"]
         direction TB
-        subgraph Input["Input Streams"]
-            s1[Stream 1]
-            s2[Stream 2]
-            s3[Stream 3]
+        subgraph IN["📥 Input (n streams)"]
+            s1["Stream 1"]
+            s2["Stream 2"]
+            s3["Stream 3"]
         end
         
-        H1[H_pre]
-        F[F - Core Function]
-        H2[H_post]
-        H3[H_res]
+        H1["H<sup>pre</sup>"]
+        F["F(·)"]
+        H2["H<sup>post</sup>"]
+        HR["H<sup>res</sup>"]
+        MX[("⊕ Mix")]
         
-        Input --> H1
-        H1 --> F
-        F --> H2
-        H3 --> MIX((Mix))
-        H2 --> MIX
+        IN --> H1 --> F --> H2 --> MX
+        IN --> HR --> MX
         
-        subgraph Output["Output Streams"]
-            o1[Stream 1']
-            o2[Stream 2']
-            o3[Stream 3']
+        subgraph OUT["📤 Output (n streams)"]
+            o1["Stream 1'"]
+            o2["Stream 2'"]
+            o3["Stream 3'"]
         end
-        MIX --> Output
+        
+        MX --> OUT
     end
 </div>
 
-Each layer **mixes** these streams using a learnable matrix:
+Each layer **mixes** these streams using learnable matrices:
 
-$$x_{l+1} = H^{\text{res}}_l x_l + H^{\text{post}}_l{}^\top F(H^{\text{pre}}_l x_l)$$
+<div class="math-block">
 
-The idea is powerful:
-* Multiple pathways
-* Richer interaction
-* No extra FLOPs in the core function F
+$$x_{l+1} = H^{\text{res}}_l \cdot x_l + (H^{\text{post}}_l)^\top \cdot F(H^{\text{pre}}_l \cdot x_l)$$
 
-But something subtle breaks.
+</div>
+
+The idea is powerful: multiple pathways, richer interaction, no extra FLOPs in the core function $F$.
+
+**But something subtle breaks.**
 
 ---
 
 ## 3. The Hidden Instability in Hyper-Connections
 
-In ResNet, the identity path is literal: weight = 1.
+In ResNet, the identity path has weight exactly = 1.
 
-In HC, the identity path becomes:
+In HC, the identity path becomes a **matrix product**:
 
-$$x_{l+1} = H^{\text{res}}_l x_l$$
+<div class="math-block">
 
-<div class="mermaid">
-flowchart LR
-    subgraph Problem["The Instability Problem"]
-        direction LR
-        x0[x_0] --> H1[H_res^1] --> H2[H_res^2] --> H3[H_res^3] --> dots[...] --> HL[H_res^L] --> xL[x_L]
-    end
-    
-    subgraph Result["After L Layers"]
-        product["x_L = (∏ H_res) × x_0"]
-    end
-    
-    style Problem fill:#1a1a2e
-    style Result fill:#dc2626,color:#fff
+$$x_L = \left(\prod_{i=0}^{L-1} H^{\text{res}}_i\right) \cdot x_0 + \cdots$$
+
 </div>
 
-Here's the problem:
-* H_res is **unconstrained**
-* Across many layers, matrix products can:
-  * Amplify signals
-  * Attenuate signals
-  * Destroy mean preservation
+<div class="mermaid">
+graph LR
+    x0["x<sub>0</sub>"] --> H1["H<sup>res</sup><sub>1</sub>"]
+    H1 --> H2["H<sup>res</sup><sub>2</sub>"]
+    H2 --> H3["H<sup>res</sup><sub>3</sub>"]
+    H3 --> dots["···"]
+    dots --> HL["H<sup>res</sup><sub>L</sub>"]
+    HL --> xL["x<sub>L</sub>"]
+    
+    style x0 fill:#06b6d4,stroke:#06b6d4,color:#000
+    style xL fill:#dc2626,stroke:#dc2626,color:#fff
+</div>
 
-After many layers:
+<div class="highlight-box">
 
-$$x_L = \left(\prod_i H^{\text{res}}_i\right) x_l + \cdots$$
+**🚨 The Problem:** $H^{\text{res}}$ matrices are **unconstrained**
 
-There is **no guarantee** that this product behaves like identity.
+Across many layers, matrix products can:
+- 📈 **Amplify signals** exponentially
+- 📉 **Attenuate signals** to zero
+- 💥 **Destroy mean preservation**
+
+There is **no guarantee** that $\prod_i H^{\text{res}}_i$ behaves like identity!
+
+</div>
 
 ---
 
-## 4. A 1D Toy Simulation (Why This Matters)
+## 4. A 1D Toy Simulation
 
-Consider a 1D signal x, with a small stabilizing residual:
+Consider a 1D signal $x$, with a small damping:
+
+<div class="math-block">
 
 $$F(x) = -0.05x$$
 
-### Three cases
+</div>
 
-| Architecture | Update rule | Behavior |
+| Architecture | Update Rule | Behavior |
 |:------------|:-----------|:---------|
-| **ResNet** | x_{l+1} = x_l + F(x_l) | ✅ Stable decay |
-| **HC** | x_{l+1} = 1.08 · x_l + F(x_l) | 🚨 Slow explosion |
-| **mHC** | x_{l+1} = 1.0 · x_l + F(x_l) | ✅ Stable decay |
+| **ResNet** | $x_{l+1} = 1.0 \cdot x_l + F(x_l)$ | ✅ Stable decay |
+| **HC** | $x_{l+1} = 1.08 \cdot x_l + F(x_l)$ | 🚨 Slow explosion |
+| **mHC** | $x_{l+1} = 1.0 \cdot x_l + F(x_l)$ | ✅ Stable decay |
 
 <div class="mermaid">
-xychart-beta
-    title "Signal Magnitude Over Depth"
-    x-axis "Layer Depth" [0, 10, 20, 30, 40, 50]
-    y-axis "Signal Magnitude" 0 --> 5
-    line "ResNet" [1, 0.6, 0.35, 0.2, 0.12, 0.08]
-    line "mHC" [1, 0.6, 0.35, 0.2, 0.12, 0.08]
-    line "HC (unstable)" [1, 1.5, 2.2, 3.3, 4.5, 6.0]
+graph LR
+    subgraph Comparison["Signal After 50 Layers"]
+        R["🟢 ResNet<br/>x ≈ 0.08"]
+        M["🟢 mHC<br/>x ≈ 0.08"]
+        H["🔴 HC<br/>x ≈ 6.0+ 💥"]
+    end
 </div>
 
-### What happens?
-* **ResNet & mHC**: signal decays smoothly and predictably
-* **HC**: signal *slowly explodes* despite damping
+**Gradients behave similarly:**
+- HC gradients grow like $(1.03)^L$ — **exponential explosion**
+- ResNet/mHC gradients remain **controlled**
 
-Gradients behave similarly:
-* HC gradients grow like (1.03)^L
-* ResNet/mHC gradients remain controlled
-
-This is not a hypothetical issue—it becomes catastrophic at LLM scale.
+This becomes catastrophic at LLM scale with $L > 100$ layers.
 
 ---
 
-## 5. What Is mHC Trying to Enforce?
+## 5. The mHC Solution: Doubly Stochastic Matrices
 
-mHC asks a simple question:
+mHC asks: *"How do we allow rich mixing while preserving identity behavior?"*
 
-> "How do we allow rich mixing across streams while preserving identity behavior?"
+<div class="highlight-box">
 
-The answer:
+**Answer: Constrain $H^{\text{res}}$ to be a doubly stochastic matrix**
 
-### **Constrain residual mixing to be a convex combination**
+A matrix $H$ is **doubly stochastic** if:
+- ✅ All entries $\geq 0$
+- ✅ Each row sums to 1
+- ✅ Each column sums to 1
 
-Mathematically, this means constraining:
-
-$$H^{\text{res}} \in \text{Birkhoff polytope}$$
+</div>
 
 <div class="mermaid">
-flowchart TB
-    subgraph Constraint["Doubly Stochastic Constraint"]
-        direction TB
-        R1["Row sums = 1"] 
-        R2["Column sums = 1"]
-        R3["All entries ≥ 0"]
+graph TB
+    subgraph DS["Doubly Stochastic Matrix Properties"]
+        P1["∑<sub>j</sub> H<sub>ij</sub> = 1<br/>(rows sum to 1)"]
+        P2["∑<sub>i</sub> H<sub>ij</sub> = 1<br/>(columns sum to 1)"]
+        P3["H<sub>ij</sub> ≥ 0<br/>(non-negative)"]
     end
     
-    subgraph Result["Result"]
-        M["H is a<br/>Doubly Stochastic<br/>Matrix"]
+    subgraph Benefits["✨ Benefits"]
+        B1["Mean preserved"]
+        B2["Norms bounded"]
+        B3["Products stable"]
     end
     
-    Constraint --> M
-    
-    style M fill:#06b6d4
+    DS --> Benefits
 </div>
 
-In plain terms:
-* Rows sum to 1
-* Columns sum to 1
-* All entries are non-negative
+### Why This Works
 
-These are called **doubly stochastic matrices**.
+If $H$ is doubly stochastic:
+
+<div class="math-block">
+
+$$\text{mean}(Hx) = \text{mean}(x)$$
+
+</div>
+
+**Critical property:** The product of doubly stochastic matrices is also doubly stochastic!
+
+<div class="math-block">
+
+$$H_1 \cdot H_2 \cdot \cdots \cdot H_L \text{ is doubly stochastic if each } H_i \text{ is}$$
+
+</div>
+
+This guarantees **identity preservation across arbitrarily deep networks**.
 
 ---
 
-## 6. Why Doubly Stochastic Matrices Are Special
+## 6. Sinkhorn–Knopp Algorithm
 
-Take a matrix H with:
+How do we enforce the doubly stochastic constraint during training?
 
-$$\sum_j H_{ij} = 1,\quad \sum_i H_{ij} = 1$$
-
-Then:
-* Each output is a **weighted average** of inputs
-* The **mean of features is preserved**
-* Norms are naturally regularized
-
-Most importantly:
-
-$$\text{Product of doubly stochastic matrices is also doubly stochastic}$$
+**Sinkhorn–Knopp algorithm** [5] projects any non-negative matrix onto the set of doubly stochastic matrices.
 
 <div class="mermaid">
-flowchart LR
-    DS1["DS Matrix 1"] --> MUL((×)) --> DS2["DS Matrix 2"] --> MUL2((×)) --> DSn["DS Matrix n"] --> Result["Still DS!"]
+graph TB
+    A["📊 Unconstrained Matrix A"] --> S1["1️⃣ Normalize rows"]
+    S1 --> S2["2️⃣ Normalize columns"]
+    S2 --> C{Converged?}
+    C -->|No| S1
+    C -->|Yes| B["✅ Doubly Stochastic B"]
     
-    style DS1 fill:#06b6d4
-    style DS2 fill:#8b5cf6
-    style DSn fill:#06b6d4
-    style Result fill:#22c55e
+    style A fill:#dc2626,stroke:#dc2626,color:#fff
+    style B fill:#22c55e,stroke:#22c55e,color:#fff
 </div>
 
-So identity preservation holds **across arbitrarily deep networks**.
+### Example
 
----
-
-## 7. Sinkhorn–Knopp: Turning Chaos into Conservation
-
-How do we enforce this constraint in practice?
-
-Enter the **Sinkhorn–Knopp algorithm**.
-
-### Algorithm intuition
-
-<div class="mermaid">
-flowchart TB
-    A[Unconstrained Matrix A] --> S1[Normalize Rows]
-    S1 --> S2[Normalize Columns]
-    S2 --> Check{Converged?}
-    Check -->|No| S1
-    Check -->|Yes| B[Doubly Stochastic B]
-    
-    style A fill:#dc2626
-    style B fill:#22c55e
-</div>
-
-1. Normalize rows to sum to 1
-2. Normalize columns to sum to 1
-3. Repeat until convergence
-
-### Visual example
-
-We start with an unconstrained matrix A:
+**Before Sinkhorn projection:**
 
 ```
-A = | 1.372  1.788  1.507 |
-    | 1.362  1.059  1.615 |
-    | 1.094  2.229  2.409 |
+A = | 1.37  1.79  1.51 |    Row sums: 4.67, 4.04, 5.73
+    | 1.36  1.06  1.62 |    Col sums: 3.83, 5.08, 5.53
+    | 1.09  2.23  2.41 |
 ```
 
-Row/column sums are wildly uneven.
-
-After Sinkhorn projection:
+**After Sinkhorn projection:**
 
 ```
-B = | 0.355  0.366  0.279 |
-    | 0.406  0.250  0.344 |
+B = | 0.355  0.366  0.279 |    Row sums: 1.0, 1.0, 1.0 ✓
+    | 0.406  0.250  0.344 |    Col sums: 1.0, 1.0, 1.0 ✓
     | 0.239  0.385  0.376 |
 ```
 
-✅ All rows sum to 1  
-✅ All columns sum to 1
-
 ---
 
-## 8. Identity Preservation in Action
+## 7. Identity Preservation in Action
 
-Let the input be:
-
-$$x = [1, 2, 3] \quad \Rightarrow \quad \text{mean} = 2$$
-
-### Unconstrained HC
-
-$$Ax = [9.47,\ 8.33,\ 12.78] \quad \Rightarrow \quad \text{mean} = 10.19$$
-
-🚨 Signal explosion
-
-### mHC (Sinkhorn constrained)
-
-$$Bx = [1.92,\ 1.94,\ 2.14] \quad \Rightarrow \quad \text{mean} = 2$$
-
-✅ Mean preserved  
-✅ Energy conserved  
-✅ Stable propagation
+**Input vector:** $x = [1, 2, 3]$, mean = 2
 
 <div class="mermaid">
-flowchart LR
-    subgraph Before["Unconstrained HC"]
-        I1["[1, 2, 3]<br/>mean=2"] --> A1["A × x"] --> O1["[9.47, 8.33, 12.78]<br/>mean=10.19 🚨"]
+graph LR
+    subgraph UC["🔴 Unconstrained HC"]
+        I1["[1, 2, 3]<br/>mean = 2"] --> A["A × x"] --> O1["[9.5, 8.3, 12.8]<br/>mean = 10.2 💥"]
     end
-    
-    subgraph After["mHC (Sinkhorn)"]
-        I2["[1, 2, 3]<br/>mean=2"] --> A2["B × x"] --> O2["[1.92, 1.94, 2.14]<br/>mean=2 ✅"]
-    end
-    
-    style O1 fill:#dc2626
-    style O2 fill:#22c55e
 </div>
-
-This is the **identity mapping property restored**, now in multi-stream form.
-
----
-
-## 9. Physical Intuition: Information Conservation
-
-An analogy that works well:
 
 <div class="mermaid">
-flowchart LR
-    subgraph Conservation["Water/Information Conservation"]
-        direction TB
-        P1[Pipe 1] --> V[Valve Matrix]
-        P2[Pipe 2] --> V
-        P3[Pipe 3] --> V
-        V --> O1[Output 1]
-        V --> O2[Output 2]
-        V --> O3[Output 3]
+graph LR
+    subgraph MHC["🟢 mHC (Sinkhorn)"]
+        I2["[1, 2, 3]<br/>mean = 2"] --> B["B × x"] --> O2["[1.9, 1.9, 2.1]<br/>mean = 2.0 ✓"]
     end
-    
-    Note["Sinkhorn ensures:<br/>• No water created<br/>• No water destroyed<br/>• Only redistributed"]
-    
-    style Note fill:#1a1a2e,stroke:#06b6d4
 </div>
 
-* Each stream = pipe of water
-* Matrix weights = valves
-* Sinkhorn ensures:
-  * No water is created
-  * No water is destroyed
-  * Only redistributed
-
-mHC introduces a **conservation law for information**.
+| Method | Output | Mean | Status |
+|--------|--------|------|--------|
+| Unconstrained HC | $[9.5, 8.3, 12.8]$ | 10.2 | 🚨 5× explosion |
+| mHC (Sinkhorn) | $[1.9, 1.9, 2.1]$ | 2.0 | ✅ Preserved |
 
 ---
 
-## 10. Scaling in Practice
-
-mHC also addresses hardware concerns:
-* Kernel fusion
-* Mixed-precision kernels
-* Selective recomputation
-* Communication-compute overlap
-
-In practice:
-* Expansion rate n=4
-* Only ~**6.7% training slowdown**
-* Massive stability gains at scale
-
----
-
-## Summary: The Evolution of Residual Connections
+## 8. Physical Intuition: Conservation Law
 
 <div class="mermaid">
-timeline
-    title Evolution of Residual Architectures
-    2016 : ResNet
-         : Identity shortcut
-         : Single stream
-    2024 : Hyper-Connections
-         : Multiple streams
-         : Unconstrained mixing
-         : Instability at scale
-    2025 : mHC
-         : Multiple streams
-         : Sinkhorn constraint
-         : Identity preservation
-         : Stable at scale
+graph LR
+    subgraph Water["💧 Water Pipe Analogy"]
+        P1["Pipe 1"] --> V["🔧 Valves<br/>(Matrix H)"]
+        P2["Pipe 2"] --> V
+        P3["Pipe 3"] --> V
+        V --> O1["Out 1"]
+        V --> O2["Out 2"]
+        V --> O3["Out 3"]
+    end
 </div>
+
+Think of each stream as a **water pipe** and matrix weights as **valves**.
+
+**Sinkhorn constraint ensures:**
+- 💧 No water is created
+- 💧 No water is destroyed
+- 💧 Only redistributed
+
+mHC introduces a **conservation law for information flow** in neural networks.
 
 ---
 
-## Final Takeaway
+## 9. Scaling in Practice
 
-**Hyper-Connections make residuals more powerful, but fragile.**
+mHC also includes **practical optimizations** [4]:
 
-**Manifold-Constrained Hyper-Connections restore stability by enforcing conservation.**
+| Optimization | Benefit |
+|-------------|---------|
+| Kernel fusion | Reduced memory transfers |
+| Mixed-precision (BF16) | 2× memory efficiency |
+| Selective recomputation | Lower memory footprint |
+| Communication overlap | Better multi-GPU scaling |
 
-> **Sinkhorn–Knopp turns arbitrary mixing into structured averaging, preserving identity mappings across extreme depth.**
+**In practice:**
+- Expansion rate $n = 4$
+- Only **~6.7% training slowdown**
+- Massive stability gains at scale
+
+---
+
+## 10. Summary
+
+<div class="mermaid">
+graph LR
+    subgraph Evolution["Evolution of Residual Architectures"]
+        R["2016<br/>ResNet"] --> HC["2024<br/>Hyper-Connections"] --> MHC["2025<br/>mHC"]
+    end
+    
+    R2["✅ Stable<br/>❌ Limited"] --> HC2["✅ Expressive<br/>❌ Unstable"]
+    HC2 --> MHC2["✅ Expressive<br/>✅ Stable"]
+    
+    style R fill:#3b82f6,stroke:#3b82f6,color:#fff
+    style HC fill:#f59e0b,stroke:#f59e0b,color:#000
+    style MHC fill:#22c55e,stroke:#22c55e,color:#fff
+</div>
+
+<div class="highlight-box">
+
+**Key Takeaways:**
+
+1. **Residual connections** enable deep training via identity preservation
+2. **Hyper-Connections** add expressiveness but break stability guarantees
+3. **mHC** restores stability by constraining mixing to doubly stochastic matrices
+4. **Sinkhorn–Knopp** projection efficiently enforces this constraint during training
+
+</div>
+
+> **"Sinkhorn–Knopp turns arbitrary mixing into structured averaging, preserving identity mappings across extreme depth."**
 
 This is why mHC scales where vanilla HC does not—and why it is a promising building block for the next generation of large-scale models.
 
 ---
 
-*If you found this post useful, feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/sandeep-pandey-43790921/) or check out my other publications on [Google Scholar](https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en).*
+## References
+
+[1] He, K., Zhang, X., Ren, S., & Sun, J. (2016). **Deep Residual Learning for Image Recognition**. *CVPR 2016*. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)
+
+[2] Vaswani, A., et al. (2017). **Attention Is All You Need**. *NeurIPS 2017*. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+
+[3] Zhu, Y., et al. (2024). **Hyper-Connections**. *arXiv preprint*. [arXiv:2409.19606](https://arxiv.org/abs/2409.19606)
+
+[4] Yang, D., et al. (2025). **Manifold-Constrained Hyper-Connections for Stable LLM Training**. *arXiv preprint*. [arXiv:2506.08095](https://arxiv.org/abs/2506.08095)
+
+[5] Sinkhorn, R., & Knopp, P. (1967). **Concerning nonnegative matrices and doubly stochastic matrices**. *Pacific Journal of Mathematics*, 21(2), 343-348.
+
+[6] Birkhoff, G. (1946). **Three observations on linear algebra**. *Univ. Nac. Tucumán Rev. Ser. A*, 5, 147-151.
+
+---
+
+*If you found this post useful, connect with me on [LinkedIn](https://www.linkedin.com/in/sandeep-pandey-43790921/) or check out my publications on [Google Scholar](https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en).*
