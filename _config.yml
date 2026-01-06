@@ -1,3 +1,7 @@
-theme: jekyll-theme-architect
-title: My Awesome Blog
-description: Welcome to my new website!
+title: Sandeep Pandey | AI Research
+description: Personal Blog & Portfolio of a Research Scientist
+remote_theme: jekyll/minima
+header_pages:
+  - index.md
+  - bio.md
+  - blog.md
