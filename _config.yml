@@ -1,7 +1,15 @@
 title: Sandeep Pandey | AI Research
-description: Personal Blog & Portfolio of a Research Scientist
+description: Research Scientist specializing in Large Language Models, Speech Processing & AI-driven Financial Automation
 remote_theme: jekyll/minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
 header_pages:
-  - index.md
   - bio.md
   - blog.md
+author:
+  name: Sandeep Pandey
+  email: sandeeppandey456@gmail.com
+social:
+  linkedin: sandeep-pandey-43790921
+  scholar: NveAdp8AAAAJ
