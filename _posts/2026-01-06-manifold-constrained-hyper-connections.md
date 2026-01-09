@@ -52,11 +52,11 @@ mermaid.initialize({
 
 ## A Simple, Intuitive, and Visual Guide
 
-Deep neural networks owe much of their success to a deceptively simple idea: the **residual connection**. Since the introduction of ResNets in 2016 [1], residual connections have become a foundational design element across modern architectures—most notably Transformers [2] and large language models (LLMs).
+Deep neural networks owe much of their success to a deceptively simple idea: the <strong>residual connection</strong>. Since the introduction of ResNets in 2016 [1], residual connections have become a foundational design element across modern architectures—most notably Transformers [2] and large language models (LLMs).
 
-Recently, **Hyper-Connections (HC)** [3] proposed a bold extension to residuals by widening the residual stream and increasing connection complexity—unlocking new representational power. However, this power comes with a hidden cost: **training instability at scale**.
+Recently, <strong>Hyper-Connections (HC)</strong> [3] proposed a bold extension to residuals by widening the residual stream and increasing connection complexity—unlocking new representational power. However, this power comes with a hidden cost: <strong>training instability at scale</strong>.
 
-**Manifold-Constrained Hyper-Connections (mHC)** [4] solve this problem elegantly using geometric constraints from optimal transport theory.
+<strong>Manifold-Constrained Hyper-Connections (mHC)</strong> [4] solve this problem elegantly using geometric constraints from optimal transport theory.
 
 In this post, we'll build intuition step-by-step for:
 - Why residual connections work
@@ -99,7 +99,7 @@ You can think of a residual layer as keeping what you already know and applying 
 This simple change enables:
 - Stable training at great depth
 - Protection against vanishing gradients
-- **Identity fallback**: if F(x) = 0, the network behaves like the identity function
+- <strong>Identity fallback</strong>: if F(x) = 0, the network behaves like the identity function
 
 Stacking many residual layers yields:
 
@@ -109,13 +109,13 @@ $$x_L = x_0 + \sum_{i=0}^{L-1} F(x_i)$$
 
 </div>
 
-The original signal flows **unchanged** through all deeper layers. This property—**identity mapping**—is the secret behind ResNet's stability.
+The original signal flows unchanged through all deeper layers. This property—<strong>identity mapping</strong>—is the secret behind ResNet's stability.
 
 ---
 
 ## 2. Hyper-Connections: Making Residuals Wider
 
-Hyper-Connections (HC) [3] generalize residual connections by introducing **multiple parallel residual streams**.
+Hyper-Connections (HC) [3] generalize residual connections by introducing <strong>multiple parallel residual streams</strong>.
 
 | Standard ResNet | Hyper-Connections |
 |----------------|-------------------|
@@ -159,7 +159,7 @@ $$x_{l+1} = H^{res}_l \cdot x_l + (H^{post}_l)^\top \cdot F(H^{pre}_l \cdot x_l)
 
 The idea is powerful: multiple pathways, richer interaction, no extra FLOPs in the core function F.
 
-**But something subtle breaks.**
+<strong>But something subtle breaks.</strong>
 
 ---
 
@@ -167,7 +167,7 @@ The idea is powerful: multiple pathways, richer interaction, no extra FLOPs in t
 
 In ResNet, the identity path has weight exactly = 1.
 
-In HC, the identity path becomes a **matrix product**:
+In HC, the identity path becomes a <strong>matrix product</strong>:
 
 <div class="math-block">
 
@@ -187,14 +187,16 @@ graph LR
 
 <div class="highlight-box">
 
-**The Problem:** The H_res matrices are unconstrained.
+<strong>The Problem:</strong> The H_res matrices are unconstrained.
 
-Across many layers, matrix products can:
-- **Amplify signals** exponentially
-- **Attenuate signals** to zero
-- **Destroy mean preservation**
+<p>Across many layers, matrix products can:</p>
+<ul>
+<li><strong>Amplify signals</strong> exponentially</li>
+<li><strong>Attenuate signals</strong> to zero</li>
+<li><strong>Destroy mean preservation</strong></li>
+</ul>
 
-There is no guarantee that the product of all H_res matrices behaves like identity!
+<p>There is no guarantee that the product of all H_res matrices behaves like identity!</p>
 
 </div>
 
@@ -216,7 +218,7 @@ $$F(x) = -0.05x$$
 | HC | x = 1.08 × x + F(x) | ⚠️ Slow explosion |
 | mHC | x = 1.0 × x + F(x) | ✅ Stable decay |
 
-**After 50 layers:**
+<strong>After 50 layers:</strong>
 - ResNet & mHC: signal ≈ 0.08 (controlled decay)
 - HC: signal ≈ 6.0+ (explosion!)
 
@@ -234,12 +236,14 @@ mHC asks: How do we allow rich mixing while preserving identity behavior?
 
 <div class="highlight-box">
 
-**Answer: Constrain H_res to be a doubly stochastic matrix**
+<strong>Answer: Constrain H_res to be a doubly stochastic matrix</strong>
 
-A matrix H is doubly stochastic if:
-- All entries ≥ 0
-- Each row sums to 1
-- Each column sums to 1
+<p>A matrix H is doubly stochastic if:</p>
+<ul>
+<li>All entries ≥ 0</li>
+<li>Each row sums to 1</li>
+<li>Each column sums to 1</li>
+</ul>
 
 </div>
 
@@ -270,9 +274,9 @@ $$\text{mean}(Hx) = \text{mean}(x)$$
 
 </div>
 
-**Critical property:** The product of doubly stochastic matrices is also doubly stochastic!
+<strong>Critical property:</strong> The product of doubly stochastic matrices is also doubly stochastic!
 
-This guarantees **identity preservation across arbitrarily deep networks**.
+This guarantees <strong>identity preservation across arbitrarily deep networks</strong>.
 
 ---
 
@@ -280,7 +284,7 @@ This guarantees **identity preservation across arbitrarily deep networks**.
 
 How do we enforce the doubly stochastic constraint during training?
 
-The **Sinkhorn–Knopp algorithm** [5] projects any non-negative matrix onto the set of doubly stochastic matrices through alternating row and column normalization.
+The <strong>Sinkhorn–Knopp algorithm</strong> [5] projects any non-negative matrix onto the set of doubly stochastic matrices through alternating row and column normalization.
 
 <pre class="mermaid">
 graph TB
@@ -293,7 +297,7 @@ graph TB
 
 ### Example
 
-**Before Sinkhorn projection:**
+<strong>Before Sinkhorn projection:</strong>
 
 ```
 A = | 1.37  1.79  1.51 |    Row sums: 4.67, 4.04, 5.73
@@ -301,7 +305,7 @@ A = | 1.37  1.79  1.51 |    Row sums: 4.67, 4.04, 5.73
     | 1.09  2.23  2.41 |
 ```
 
-**After Sinkhorn projection:**
+<strong>After Sinkhorn projection:</strong>
 
 ```
 B = | 0.355  0.366  0.279 |    Row sums: 1.0, 1.0, 1.0 ✓
@@ -313,7 +317,7 @@ B = | 0.355  0.366  0.279 |    Row sums: 1.0, 1.0, 1.0 ✓
 
 ## 7. Identity Preservation in Action
 
-**Input vector:** x = [1, 2, 3], mean = 2
+<strong>Input vector:</strong> x = [1, 2, 3], mean = 2
 
 <pre class="mermaid">
 graph LR
@@ -338,7 +342,7 @@ graph LR
 
 ## 8. Physical Intuition: Conservation Law
 
-Think of each stream as a **water pipe** and matrix weights as **valves**.
+Think of each stream as a <strong>water pipe</strong> and matrix weights as <strong>valves</strong>.
 
 <pre class="mermaid">
 graph LR
@@ -355,7 +359,7 @@ The Sinkhorn constraint ensures:
 - No water (information) is destroyed
 - Only redistributed across streams
 
-mHC introduces a **conservation law for information flow** in neural networks.
+mHC introduces a <strong>conservation law for information flow</strong> in neural networks.
 
 ---
 
@@ -392,12 +396,14 @@ graph LR
 
 <div class="highlight-box">
 
-**Key Takeaways:**
+<strong>Key Takeaways:</strong>
 
-1. Residual connections enable deep training via identity preservation
-2. Hyper-Connections add expressiveness but break stability guarantees
-3. mHC restores stability by constraining mixing to doubly stochastic matrices
-4. Sinkhorn–Knopp projection efficiently enforces this constraint during training
+<ol>
+<li>Residual connections enable deep training via identity preservation</li>
+<li>Hyper-Connections add expressiveness but break stability guarantees</li>
+<li>mHC restores stability by constraining mixing to doubly stochastic matrices</li>
+<li>Sinkhorn–Knopp projection efficiently enforces this constraint during training</li>
+</ol>
 
 </div>
 
@@ -409,18 +415,18 @@ This is why mHC scales where vanilla HC does not—and why it is a promising bui
 
 ## References
 
-[1] He, K., Zhang, X., Ren, S., & Sun, J. (2016). **Deep Residual Learning for Image Recognition**. CVPR 2016. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)
+[1] He, K., Zhang, X., Ren, S., & Sun, J. (2016). <strong>Deep Residual Learning for Image Recognition</strong>. CVPR 2016. <a href="https://arxiv.org/abs/1512.03385">arXiv:1512.03385</a>
 
-[2] Vaswani, A., et al. (2017). **Attention Is All You Need**. NeurIPS 2017. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+[2] Vaswani, A., et al. (2017). <strong>Attention Is All You Need</strong>. NeurIPS 2017. <a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a>
 
-[3] Zhu, Y., et al. (2024). **Hyper-Connections**. arXiv preprint. [arXiv:2409.19606](https://arxiv.org/abs/2409.19606)
+[3] Zhu, Y., et al. (2024). <strong>Hyper-Connections</strong>. arXiv preprint. <a href="https://arxiv.org/abs/2409.19606">arXiv:2409.19606</a>
 
-[4] Yang, D., et al. (2025). **Manifold-Constrained Hyper-Connections for Stable LLM Training**. arXiv preprint. [arXiv:2506.08095](https://arxiv.org/abs/2506.08095)
+[4] Yang, D., et al. (2024). <strong>Manifold-Constrained Hyper-Connections</strong>. arXiv preprint. <a href="https://arxiv.org/abs/2512.24880">arXiv:2512.24880</a>
 
-[5] Sinkhorn, R., & Knopp, P. (1967). **Concerning nonnegative matrices and doubly stochastic matrices**. Pacific Journal of Mathematics, 21(2), 343-348.
+[5] Sinkhorn, R., & Knopp, P. (1967). <strong>Concerning nonnegative matrices and doubly stochastic matrices</strong>. Pacific Journal of Mathematics, 21(2), 343-348.
 
-[6] Birkhoff, G. (1946). **Three observations on linear algebra**. Univ. Nac. Tucumán Rev. Ser. A, 5, 147-151.
+[6] Birkhoff, G. (1946). <strong>Three observations on linear algebra</strong>. Univ. Nac. Tucumán Rev. Ser. A, 5, 147-151.
 
 ---
 
-*If you found this post useful, connect with me on [LinkedIn](https://www.linkedin.com/in/sandeep-pandey-43790921/) or check out my publications on [Google Scholar](https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en).*
+<em>If you found this post useful, connect with me on <a href="https://www.linkedin.com/in/sandeep-pandey-43790921/">LinkedIn</a> or check out my publications on <a href="https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en">Google Scholar</a>.</em>

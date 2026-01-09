@@ -13,3 +13,26 @@ author:
 social:
   linkedin: sandeep-pandey-43790921
   scholar: NveAdp8AAAAJ
+
+# Google Analytics 4 - Replace with your Measurement ID
+google_analytics: G-XXXXXXXXXX
+
+# Giscus Comments Configuration
+# Visit https://giscus.app to get your repo details
+# 1. Enable GitHub Discussions on your repo
+# 2. Install giscus app: https://github.com/apps/giscus
+# 3. Get your repo_id and category_id from https://giscus.app
+giscus:
+  repo: sandeeppandey456/sandeeppandey456.github.io
+  repo_id: # Get from giscus.app
+  category: General
+  category_id: # Get from giscus.app
+
+# Firebase Configuration for Likes/Dislikes
+# 1. Create a project at https://console.firebase.google.com
+# 2. Enable Realtime Database (start in test mode for now)
+# 3. Get config from Project Settings > General > Your apps > Web app
+firebase:
+  api_key: # Your Firebase API Key
+  database_url: # https://your-project.firebaseio.com
+  project_id: # your-project-id

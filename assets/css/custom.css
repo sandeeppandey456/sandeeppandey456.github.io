@@ -276,6 +276,49 @@ img {
     margin-bottom: 0.5rem;
 }
 
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-engagement {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.engagement-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.engagement-indicator svg {
+    stroke: var(--text-muted);
+    transition: var(--transition-fast);
+}
+
+.card:hover .engagement-indicator svg {
+    stroke: var(--accent-primary);
+}
+
+.read-more {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    transition: var(--transition-fast);
+}
+
+.read-more:hover {
+    color: var(--accent-secondary);
+    text-decoration: none;
+}
+
 /* ===== Timeline ===== */
 .timeline {
     position: relative;
@@ -598,9 +641,153 @@ blockquote {
     margin: 0 auto;
 }
 
-/* Strong/Bold text fix */
 strong,
 b {
     font-weight: 700;
     color: var(--text-primary);
+}
+
+/* ===== Engagement Section ===== */
+.post-engagement {
+    margin-top: 4rem;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    text-align: center;
+}
+
+.engagement-title {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
+}
+
+.engagement-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.engagement-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.engagement-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.engagement-btn.like-btn:hover {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.engagement-btn.dislike-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.engagement-btn.like-btn.voted {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.engagement-btn.dislike-btn.voted {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.engagement-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.engagement-count {
+    font-weight: 700;
+    min-width: 24px;
+}
+
+.vote-status {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    min-height: 1.5rem;
+}
+
+/* ===== Comments Section ===== */
+.comments-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.comments-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
+}
+
+/* Giscus container styling */
+.giscus {
+    margin-top: 1rem;
+}
+
+.giscus-frame {
+    border-radius: 12px;
+}
+
+/* ===== Animation for vote feedback ===== */
+@keyframes pulse-like {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.engagement-btn.voted {
+    animation: pulse-like 0.3s ease-in-out;
+}
+
+/* ===== Mobile responsiveness for engagement ===== */
+@media (max-width: 480px) {
+    .engagement-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .engagement-btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .post-engagement {
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
 }
