@@ -390,4 +390,11 @@ graph LR
 
 ---
 
+## References
+
+[1] Qu, C., et al. (2024). **Recursive Language Models**. arXiv preprint. <a href="https://arxiv.org/abs/2512.24601">arXiv:2512.24601</a>
+
+---
+
 *If you found this post useful, connect with me on <a href="https://www.linkedin.com/in/sandeep-pandey-43790921/">LinkedIn</a> or check out my publications on <a href="https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en">Google Scholar</a>.*
+
