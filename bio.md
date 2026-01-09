@@ -279,3 +279,5 @@ My work spans developing AI agents for investment research, building multilingua
 <a href="https://www.linkedin.com/in/sandeep-pandey-43790921/" target="_blank" class="social-link">💼 LinkedIn</a>
 <a href="https://scholar.google.com/citations?user=NveAdp8AAAAJ&hl=en" target="_blank" class="social-link">📚 Google Scholar</a>
 </div>
+
+{% include theme-toggle.html %}

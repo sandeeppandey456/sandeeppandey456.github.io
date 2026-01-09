@@ -65,3 +65,5 @@ permalink: /blog/
 </div>
 </div>
 {% endif %}
+
+{% include theme-toggle.html %}

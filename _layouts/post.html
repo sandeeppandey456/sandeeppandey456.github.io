@@ -17,6 +17,9 @@ layout: default
                     <span class="p-author h-card" itemprop="name">{{ page.author }}</span>
                 </span>
                 {%- endif -%}
+                {% assign words = content | number_of_words %}
+                {% assign mins = words | divided_by: 200 %}
+                {% if mins < 1 %}{% assign mins=1 %}{% endif %} <span class="reading-time">{{ mins }} min read</span>
             </p>
         </header>
 
@@ -136,3 +139,5 @@ layout: default
     document.getElementById('likeBtn').addEventListener('click', () => vote('like'));
     document.getElementById('dislikeBtn').addEventListener('click', () => vote('dislike'));
 </script>
+
+{% include theme-toggle.html %}

@@ -81,3 +81,5 @@ title: Home
     <span class="badge">Multi-Agent AI</span>
   </div>
 </div>
+
+{% include theme-toggle.html %}
