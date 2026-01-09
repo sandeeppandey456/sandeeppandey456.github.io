@@ -755,6 +755,27 @@ b {
     border-radius: 12px;
 }
 
+/* Comments placeholder when Giscus not configured */
+.comments-placeholder {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.comments-placeholder p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.comments-placeholder .comments-subtext {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
 /* ===== Animation for vote feedback ===== */
 @keyframes pulse-like {
     0% {

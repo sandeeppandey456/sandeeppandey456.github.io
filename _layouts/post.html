@@ -3,90 +3,94 @@ layout: default
 ---
 <link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
 
-<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+<div class="wrapper">
+    <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
-    <header class="post-header">
-        <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
-        <p class="post-meta">
-            <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-                {{ page.date | date: "%b %-d, %Y" }}
-            </time>
-            {%- if page.author -%}
-            • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-                <span class="p-author h-card" itemprop="name">{{ page.author }}</span>
-            </span>
-            {%- endif -%}
-        </p>
-    </header>
+        <header class="post-header">
+            <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+            <p class="post-meta">
+                <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+                    {{ page.date | date: "%b %-d, %Y" }}
+                </time>
+                {%- if page.author -%}
+                • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <span class="p-author h-card" itemprop="name">{{ page.author }}</span>
+                </span>
+                {%- endif -%}
+            </p>
+        </header>
 
-    <div class="post-content e-content" itemprop="articleBody">
-        {{ content }}
-    </div>
-
-    <!-- Engagement Section -->
-    <div class="post-engagement">
-        <h3 class="engagement-title">Did you find this post helpful?</h3>
-
-        <!-- Like/Dislike Buttons -->
-        <div class="engagement-buttons">
-            <button class="engagement-btn like-btn" id="likeBtn" data-post-id="{{ page.url | slugify }}">
-                <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
-                    </path>
-                </svg>
-                <span class="engagement-count" id="likeCount">0</span>
-            </button>
-
-            <button class="engagement-btn dislike-btn" id="dislikeBtn" data-post-id="{{ page.url | slugify }}">
-                <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                        d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
-                    </path>
-                </svg>
-                <span class="engagement-count" id="dislikeCount">0</span>
-            </button>
+        <div class="post-content e-content" itemprop="articleBody">
+            {{ content }}
         </div>
 
-        <p class="vote-status" id="voteStatus"></p>
-    </div>
+        <!-- Engagement Section -->
+        <div class="post-engagement">
+            <h3 class="engagement-title">Did you find this post helpful?</h3>
 
-    <!-- Comments Section -->
-    <div class="comments-section">
-        <h3 class="comments-title">Comments</h3>
-        <script src="https://giscus.app/client.js" data-repo="{{ site.giscus.repo }}"
-            data-repo-id="{{ site.giscus.repo_id }}" data-category="{{ site.giscus.category }}"
-            data-category-id="{{ site.giscus.category_id }}" data-mapping="pathname" data-strict="0"
-            data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light"
-            data-lang="en" data-loading="lazy" crossorigin="anonymous" async>
-            </script>
-    </div>
+            <!-- Like/Dislike Buttons -->
+            <div class="engagement-buttons">
+                <button class="engagement-btn like-btn" id="likeBtn" data-post-id="{{ page.url | slugify }}">
+                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
+                        </path>
+                    </svg>
+                    <span class="engagement-count" id="likeCount">0</span>
+                </button>
 
-    <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
-</article>
+                <button class="engagement-btn dislike-btn" id="dislikeBtn" data-post-id="{{ page.url | slugify }}">
+                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
+                        </path>
+                    </svg>
+                    <span class="engagement-count" id="dislikeCount">0</span>
+                </button>
+            </div>
 
-<!-- Firebase and Engagement Script -->
-<script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getDatabase, ref, onValue, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+            <p class="vote-status" id="voteStatus"></p>
+        </div>
 
-    // Firebase configuration - Uses site config
-    const firebaseConfig = {
-        apiKey: "{{ site.firebase.api_key | default: 'demo-key' }}",
-        databaseURL: "{{ site.firebase.database_url | default: 'https://demo.firebaseio.com' }}",
-        projectId: "{{ site.firebase.project_id | default: 'demo-project' }}"
-    };
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h3 class="comments-title">Comments</h3>
+            <div id="giscus-container">
+                {% if site.giscus.repo_id and site.giscus.category_id %}
+                <script src="https://giscus.app/client.js" data-repo="{{ site.giscus.repo }}"
+                    data-repo-id="{{ site.giscus.repo_id }}" data-category="{{ site.giscus.category }}"
+                    data-category-id="{{ site.giscus.category_id }}" data-mapping="pathname" data-strict="0"
+                    data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light"
+                    data-lang="en" data-loading="lazy" crossorigin="anonymous" async>
+                    </script>
+                {% else %}
+                <div class="comments-placeholder">
+                    <p>💬 Comments are coming soon!</p>
+                    <p class="comments-subtext">Once Giscus is configured, you'll be able to join the discussion using
+                        your GitHub account.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+    </article>
+</div>
 
+<!-- Engagement Script (localStorage-based for now) -->
+<script>
     const postId = "{{ page.url | slugify }}";
-    const votesRef = ref(db, `votes/${postId}`);
 
-    // Check if user has already voted
+    // Load existing votes from localStorage
+    const votes = JSON.parse(localStorage.getItem('blog_votes') || '{}');
+    const postVotes = votes[postId] || { likes: 0, dislikes: 0 };
     const userVote = localStorage.getItem(`vote_${postId}`);
 
-    // Update UI based on existing vote
+    // Display counts
+    document.getElementById('likeCount').textContent = postVotes.likes;
+    document.getElementById('dislikeCount').textContent = postVotes.dislikes;
+
+    // Show if already voted
     if (userVote === 'like') {
         document.getElementById('likeBtn').classList.add('voted');
         document.getElementById('voteStatus').textContent = 'You liked this post';
@@ -95,36 +99,29 @@ layout: default
         document.getElementById('voteStatus').textContent = 'You disliked this post';
     }
 
-    // Listen for real-time updates
-    onValue(votesRef, (snapshot) => {
-        const data = snapshot.val() || { likes: 0, dislikes: 0 };
-        document.getElementById('likeCount').textContent = data.likes || 0;
-        document.getElementById('dislikeCount').textContent = data.dislikes || 0;
-    });
-
-    // Handle voting
     function vote(type) {
-        const currentVote = localStorage.getItem(`vote_${postId}`);
-
-        if (currentVote) {
+        if (localStorage.getItem(`vote_${postId}`)) {
             document.getElementById('voteStatus').textContent = 'You have already voted!';
             return;
         }
 
-        const field = type === 'like' ? 'likes' : 'dislikes';
+        // Update counts
+        if (type === 'like') {
+            postVotes.likes++;
+        } else {
+            postVotes.dislikes++;
+        }
 
-        runTransaction(votesRef, (currentData) => {
-            if (currentData === null) {
-                return { likes: type === 'like' ? 1 : 0, dislikes: type === 'dislike' ? 1 : 0 };
-            }
-            currentData[field] = (currentData[field] || 0) + 1;
-            return currentData;
-        }).then(() => {
-            localStorage.setItem(`vote_${postId}`, type);
-            const btn = document.getElementById(`${type}Btn`);
-            btn.classList.add('voted');
-            document.getElementById('voteStatus').textContent = `Thanks for your feedback!`;
-        });
+        // Save to localStorage
+        votes[postId] = postVotes;
+        localStorage.setItem('blog_votes', JSON.stringify(votes));
+        localStorage.setItem(`vote_${postId}`, type);
+
+        // Update UI
+        document.getElementById('likeCount').textContent = postVotes.likes;
+        document.getElementById('dislikeCount').textContent = postVotes.dislikes;
+        document.getElementById(`${type}Btn`).classList.add('voted');
+        document.getElementById('voteStatus').textContent = 'Thanks for your feedback!';
     }
 
     document.getElementById('likeBtn').addEventListener('click', () => vote('like'));

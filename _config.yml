@@ -18,15 +18,11 @@ social:
 google_analytics: G-XXXXXXXXXX
 
 # Giscus Comments Configuration
-# Visit https://giscus.app to get your repo details
-# 1. Enable GitHub Discussions on your repo
-# 2. Install giscus app: https://github.com/apps/giscus
-# 3. Get your repo_id and category_id from https://giscus.app
 giscus:
   repo: sandeeppandey456/sandeeppandey456.github.io
-  repo_id: # Get from giscus.app
+  repo_id: R_kgDOQ0uSOg
   category: General
-  category_id: # Get from giscus.app
+  category_id: DIC_kwDOQ0uSOs4C0wFq
 
 # Firebase Configuration for Likes/Dislikes
 # 1. Create a project at https://console.firebase.google.com
