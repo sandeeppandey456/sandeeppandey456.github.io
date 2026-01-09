@@ -1,84 +1,80 @@
 ---
 layout: default
 ---
-<link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
-<div class="wrapper">
-    <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+        <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+        <p class="post-meta">
+            <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+                {{ page.date | date: "%b %-d, %Y" }}
+            </time>
+            {%- if page.author -%}
+            • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                <span class="p-author h-card" itemprop="name">{{ page.author }}</span>
+            </span>
+            {%- endif -%}
+            {% assign words = content | number_of_words %}
+            {% assign mins = words | divided_by: 200 %}
+            {% if mins < 1 %}{% assign mins=1 %}{% endif %} <span class="reading-time">{{ mins }} min read</span>
+        </p>
+    </header>
 
-        <header class="post-header">
-            <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
-            <p class="post-meta">
-                <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-                    {{ page.date | date: "%b %-d, %Y" }}
-                </time>
-                {%- if page.author -%}
-                • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-                    <span class="p-author h-card" itemprop="name">{{ page.author }}</span>
-                </span>
-                {%- endif -%}
-                {% assign words = content | number_of_words %}
-                {% assign mins = words | divided_by: 200 %}
-                {% if mins < 1 %}{% assign mins=1 %}{% endif %} <span class="reading-time">{{ mins }} min read</span>
-            </p>
-        </header>
+    <div class="post-content e-content" itemprop="articleBody">
+        {{ content }}
+    </div>
 
-        <div class="post-content e-content" itemprop="articleBody">
-            {{ content }}
+    <!-- Engagement Section -->
+    <div class="post-engagement">
+        <h3 class="engagement-title">Did you find this post helpful?</h3>
+
+        <!-- Like/Dislike Buttons -->
+        <div class="engagement-buttons">
+            <button class="engagement-btn like-btn" id="likeBtn" data-post-id="{{ page.url | slugify }}">
+                <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
+                    </path>
+                </svg>
+                <span class="engagement-count" id="likeCount">0</span>
+            </button>
+
+            <button class="engagement-btn dislike-btn" id="dislikeBtn" data-post-id="{{ page.url | slugify }}">
+                <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
+                    </path>
+                </svg>
+                <span class="engagement-count" id="dislikeCount">0</span>
+            </button>
         </div>
 
-        <!-- Engagement Section -->
-        <div class="post-engagement">
-            <h3 class="engagement-title">Did you find this post helpful?</h3>
+        <p class="vote-status" id="voteStatus"></p>
+    </div>
 
-            <!-- Like/Dislike Buttons -->
-            <div class="engagement-buttons">
-                <button class="engagement-btn like-btn" id="likeBtn" data-post-id="{{ page.url | slugify }}">
-                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
-                        </path>
-                    </svg>
-                    <span class="engagement-count" id="likeCount">0</span>
-                </button>
-
-                <button class="engagement-btn dislike-btn" id="dislikeBtn" data-post-id="{{ page.url | slugify }}">
-                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
-                        </path>
-                    </svg>
-                    <span class="engagement-count" id="dislikeCount">0</span>
-                </button>
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3 class="comments-title">Comments</h3>
+        <div id="giscus-container">
+            {% if site.giscus.repo_id and site.giscus.category_id %}
+            <script src="https://giscus.app/client.js" data-repo="{{ site.giscus.repo }}"
+                data-repo-id="{{ site.giscus.repo_id }}" data-category="{{ site.giscus.category }}"
+                data-category-id="{{ site.giscus.category_id }}" data-mapping="pathname" data-strict="0"
+                data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light"
+                data-lang="en" data-loading="lazy" crossorigin="anonymous" async>
+                </script>
+            {% else %}
+            <div class="comments-placeholder">
+                <p>💬 Comments are coming soon!</p>
+                <p class="comments-subtext">Once Giscus is configured, you'll be able to join the discussion using
+                    your GitHub account.</p>
             </div>
-
-            <p class="vote-status" id="voteStatus"></p>
+            {% endif %}
         </div>
+    </div>
 
-        <!-- Comments Section -->
-        <div class="comments-section">
-            <h3 class="comments-title">Comments</h3>
-            <div id="giscus-container">
-                {% if site.giscus.repo_id and site.giscus.category_id %}
-                <script src="https://giscus.app/client.js" data-repo="{{ site.giscus.repo }}"
-                    data-repo-id="{{ site.giscus.repo_id }}" data-category="{{ site.giscus.category }}"
-                    data-category-id="{{ site.giscus.category_id }}" data-mapping="pathname" data-strict="0"
-                    data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light"
-                    data-lang="en" data-loading="lazy" crossorigin="anonymous" async>
-                    </script>
-                {% else %}
-                <div class="comments-placeholder">
-                    <p>💬 Comments are coming soon!</p>
-                    <p class="comments-subtext">Once Giscus is configured, you'll be able to join the discussion using
-                        your GitHub account.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
-    </article>
-</div>
+    <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>
 
 <!-- Firebase Engagement Script -->
 <script type="module">
